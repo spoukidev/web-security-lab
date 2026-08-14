@@ -5,7 +5,7 @@ def test_application_starts(client) -> None:
     response = client.get("/")
     assert response.status_code == 200
     assert b"WEB SECURITY LAB" in response.data
-    assert b"Phase 3 active" in response.data
+    assert b"Phase 4 active" in response.data
     assert b'href="/search"' in response.data
 
 
@@ -78,3 +78,35 @@ def test_stored_xss_is_encoded_in_secure_mode(client) -> None:
     secure = client.get("/comments?mode=secure")
     assert payload.encode() in vulnerable.data
     assert b"&lt;script&gt;alert" in secure.data
+
+
+def select_fake_actor(client, actor_id: int, target_id: int, mode: str) -> None:
+    response = client.post(
+        "/lab/select-actor",
+        data={"actor_id": actor_id, "target_id": target_id, "mode": mode},
+    )
+    assert response.status_code == 302
+
+
+def test_idor_vulnerable_mode_discloses_another_fake_profile(client) -> None:
+    select_fake_actor(client, actor_id=1, target_id=1, mode="vulnerable")
+    response = client.get("/profile/2?mode=vulnerable")
+    assert response.status_code == 200
+    assert b"Bob Blue Team" in response.data
+    assert b"bob@example.test" in response.data
+
+
+def test_idor_secure_mode_denies_another_fake_profile(client) -> None:
+    select_fake_actor(client, actor_id=1, target_id=1, mode="secure")
+    response = client.get("/profile/2?mode=secure")
+    assert response.status_code == 403
+    assert b"Access denied (403)" in response.data
+    assert b"Bob Blue Team" not in response.data
+    assert b"bob@example.test" not in response.data
+
+
+def test_idor_secure_mode_allows_owned_fake_profile(client) -> None:
+    select_fake_actor(client, actor_id=2, target_id=2, mode="secure")
+    response = client.get("/profile/2?mode=secure")
+    assert response.status_code == 200
+    assert b"Bob Blue Team" in response.data
