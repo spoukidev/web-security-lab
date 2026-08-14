@@ -1,2 +1,18 @@
 {% extends "base.html" %}
-{% block content %}<section class="page-card"><h1>Search Lab</h1><p>The SQL injection demonstration will be introduced in Phase 2.</p></section>{% endblock %}
+{% block title %}SQL Injection Lab · Web Security Lab{% endblock %}
+{% block content %}
+<section class="hero compact"><p class="eyebrow">A03: INJECTION · INTERMEDIATE</p><h1>SQL Injection Lab</h1><p>This exercise uses only the local SQLite database and deterministic fake users. Never reuse this technique against systems you do not own or have permission to test.</p></section>
+<section class="notice warning"><strong>Intentionally insecure mode:</strong> the vulnerable search concatenates your input into a SQL statement. Use secure mode to compare parameter binding.</section>
+<section class="page-card">
+  <form class="search-form" action="{{ url_for('search.search') }}" method="get">
+    <label for="query">Username search</label><input id="query" name="q" value="{{ search_term }}" placeholder="Try alice" autocomplete="off">
+    <label for="mode">Implementation</label><select id="mode" name="mode"><option value="vulnerable" {% if mode == 'vulnerable' %}selected{% endif %}>Vulnerable: string interpolation</option><option value="secure" {% if mode == 'secure' %}selected{% endif %}>Secure: parameterized query</option></select>
+    <button class="button" type="submit">Run local search</button>
+  </form>
+  <p class="hint">Normal input: <code>alice</code>. Boolean demonstration: <code>' OR '1'='1' -- </code></p>
+</section>
+{% if statement %}
+<section class="result-grid"><article class="page-card"><p class="eyebrow">{{ mode|upper }} SQL</p><pre><code>{{ statement }}</code></pre>{% if mode == 'secure' %}<p class="hint">Bound value: <code>%{{ search_term }}%</code></p>{% endif %}</article><article class="page-card"><p class="eyebrow">DATABASE RESULT</p><h2>{{ rows|length }} fake user{{ '' if rows|length == 1 else 's' }} returned</h2>{% if rows %}<ul class="results">{% for user in rows %}<li><strong>{{ user['username'] }}</strong> · {{ user['role'] }} · {{ user['email'] }}</li>{% endfor %}</ul>{% else %}<p>No records matched the input.</p>{% endif %}</article></section>
+{% elif error_message %}<section class="notice warning"><strong>Lab result:</strong> {{ error_message }}</section>{% endif %}
+<section class="lesson-grid"><article class="page-card"><h2>Why it works</h2><p>In vulnerable mode, quote characters can close the intended string and append a Boolean expression. The demonstration makes the condition true for each fake user.</p></article><article class="page-card"><h2>Why the fix works</h2><p>Parameter binding sends the SQL program and input separately. The database treats the Boolean payload as literal search text, not executable SQL syntax.</p></article><article class="page-card"><h2>Security lesson</h2><p>Use parameterized queries for values, validate input as a secondary control, and grant database accounts only the minimum privileges required.</p></article></section>
+{% endblock %}

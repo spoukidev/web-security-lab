@@ -22,7 +22,7 @@ flowchart LR
 
 | Vulnerability | Endpoint | OWASP | Status |
 | --- | --- | --- | --- |
-| SQL Injection | `/search` | A03: Injection | Planned — Phase 2 |
+| SQL Injection | `/search` | A03: Injection | Complete — Phase 2 |
 | XSS | `/comments` | A03: Injection | Planned — Phase 3 |
 | IDOR | `/profile/<user_id>` | A01: Broken Access Control | Planned — Phase 4 |
 | SSRF | `/fetch` | A10: SSRF | Planned — Phase 5 |
@@ -52,7 +52,7 @@ Open [http://127.0.0.1:5000](http://127.0.0.1:5000). Docker publishes only Flask
 
 ## Usage
 
-The Phase 1 dashboard lists the planned OWASP labs. SQLite initializes with three deterministic fake users: Alice, Bob, and Carol. No vulnerability is active yet.
+The dashboard lists the OWASP labs. SQLite initializes with three deterministic fake users: Alice, Bob, and Carol. The completed SQL Injection lab at `/search` safely compares an intentionally vulnerable local query with its parameterized remediation.
 
 ## Burp Suite
 
@@ -68,7 +68,7 @@ The project follows an OWASP-oriented methodology. Each vulnerability will recei
 python -m pytest
 ```
 
-Phase 1 tests cover startup, health, deterministic database initialization, and confirmation that planned routes do not yet enable vulnerable behavior.
+Tests cover startup, health, deterministic database initialization, and both the vulnerable and secure SQL search behavior.
 
 ## Screenshots
 
