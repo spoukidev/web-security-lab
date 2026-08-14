@@ -2,11 +2,11 @@
 {% block title %}Web Security Lab{% endblock %}
 {% block content %}
 <section class="hero"><p class="eyebrow">OWASP SECURITY RESEARCH LABORATORY</p><h1>Web Security Lab</h1><p>Controlled, local demonstrations of common web vulnerabilities and their remediations.</p></section>
-<section class="notice"><strong>Phase 2 active:</strong> the SQL Injection lab is ready for controlled local testing. The remaining labs stay disabled until their dedicated phases.</section>
+<section class="notice"><strong>Phase 3 active:</strong> SQL Injection and XSS are ready for controlled local testing. The remaining labs stay disabled until their dedicated phases.</section>
 <section class="lab-grid" aria-label="Security labs">
 {% set labs = [('SQL Injection', 'A03: Injection', 'Intermediate', 'sql-injection'), ('XSS', 'A03: Injection', 'Intermediate', 'xss'), ('IDOR', 'A01: Broken Access Control', 'Beginner', 'idor'), ('SSRF', 'A10: Server-Side Request Forgery', 'Advanced', 'ssrf'), ('JWT', 'A07: Authentication Failures', 'Intermediate', 'jwt'), ('File Upload', 'A04: Insecure Design', 'Intermediate', 'file-upload'), ('CSRF', 'A01: Broken Access Control', 'Intermediate', 'csrf')] %}
 {% for name, owasp, difficulty, slug in labs %}
-<article class="lab-card"><p class="lab-meta">{{ owasp }} · {{ difficulty }}</p><h2>{{ name }}</h2><p>{% if slug == 'sql-injection' %}Compare unsafe SQL construction with parameter binding using fake local data.{% else %}Vulnerable and remediated implementations will be documented with a controlled lab exercise.{% endif %}</p><a class="button" href="{{ url_for('search.search') if slug == 'sql-injection' else url_for('users.lab_placeholder', lab_name=slug) }}">Open Lab</a></article>
+<article class="lab-card"><p class="lab-meta">{{ owasp }} · {{ difficulty }}</p><h2>{{ name }}</h2><p>{% if slug == 'sql-injection' %}Compare unsafe SQL construction with parameter binding using fake local data.{% elif slug == 'xss' %}Compare reflected and stored unsafe HTML rendering with output encoding and CSP.{% else %}Vulnerable and remediated implementations will be documented with a controlled lab exercise.{% endif %}</p><a class="button" href="{{ url_for('search.search') if slug == 'sql-injection' else url_for('xss.comments') if slug == 'xss' else url_for('users.lab_placeholder', lab_name=slug) }}">Open Lab</a></article>
 {% endfor %}
 </section>
 {% endblock %}

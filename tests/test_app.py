@@ -5,7 +5,7 @@ def test_application_starts(client) -> None:
     response = client.get("/")
     assert response.status_code == 200
     assert b"WEB SECURITY LAB" in response.data
-    assert b"Phase 2 active" in response.data
+    assert b"Phase 3 active" in response.data
     assert b'href="/search"' in response.data
 
 
@@ -50,3 +50,31 @@ def test_boolean_injection_is_literal_in_secure_search(client) -> None:
     assert response.status_code == 200
     assert b"0 fake users returned" in response.data
     assert b"WHERE username LIKE ?" in response.data
+
+
+def test_reflected_xss_is_rendered_in_vulnerable_mode(client) -> None:
+    payload = '<script>alert("XSS demonstration")</script>'
+    response = client.get("/comments", query_string={"preview": payload, "mode": "vulnerable"})
+    assert response.status_code == 200
+    assert payload.encode() in response.data
+    assert "Content-Security-Policy" not in response.headers
+
+
+def test_reflected_xss_is_encoded_and_has_csp_in_secure_mode(client) -> None:
+    payload = '<script>alert("XSS demonstration")</script>'
+    response = client.get("/comments", query_string={"preview": payload, "mode": "secure"})
+    assert response.status_code == 200
+    assert b"&lt;script&gt;alert" in response.data
+    assert payload.encode() not in response.data
+    assert response.headers["Content-Security-Policy"] == "default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'"
+
+
+def test_stored_xss_is_encoded_in_secure_mode(client) -> None:
+    payload = '<script>alert("XSS demonstration")</script>'
+    response = client.post("/comments", data={"body": payload, "mode": "vulnerable"})
+    assert response.status_code == 302
+
+    vulnerable = client.get("/comments?mode=vulnerable")
+    secure = client.get("/comments?mode=secure")
+    assert payload.encode() in vulnerable.data
+    assert b"&lt;script&gt;alert" in secure.data
