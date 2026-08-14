@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A local-only, intentionally vulnerable web security learning lab.">
+  <title>{% block title %}Web Security Lab{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+  <header class="site-header"><a class="brand" href="{{ url_for('users.index') }}">WEB SECURITY LAB</a><span class="badge">LOCAL ONLY · EDUCATIONAL</span></header>
+  <main class="container">{% block content %}{% endblock %}</main>
+  <footer>Intentionally vulnerable components will be introduced one phase at a time for controlled local learning.</footer>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

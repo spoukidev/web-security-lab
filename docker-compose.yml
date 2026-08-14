@@ -1,0 +1,11 @@
+services:
+  web-security-lab:
+    build: .
+    ports:
+      - "127.0.0.1:5000:5000"
+    depends_on:
+      internal-service:
+        condition: service_started
+  internal-service:
+    build: ./internal-service
+    # No host port is published; this mock service remains Docker-network-only.
