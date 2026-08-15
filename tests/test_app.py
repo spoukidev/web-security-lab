@@ -5,7 +5,7 @@ def test_application_starts(client) -> None:
     response = client.get("/")
     assert response.status_code == 200
     assert b"WEB SECURITY LAB" in response.data
-    assert b"Phase 4 active" in response.data
+    assert b"Phase 5 active" in response.data
     assert b'href="/search"' in response.data
 
 
@@ -110,3 +110,35 @@ def test_idor_secure_mode_allows_owned_fake_profile(client) -> None:
     response = client.get("/profile/2?mode=secure")
     assert response.status_code == 200
     assert b"Bob Blue Team" in response.data
+
+
+def test_ssrf_vulnerable_mode_rejects_non_lab_destinations(client) -> None:
+    response = client.get(
+        "/fetch", query_string={"mode": "vulnerable", "url": "https://example.com"}
+    )
+    assert response.status_code == 200
+    assert b"limited to the controlled lab service" in response.data
+
+
+def test_ssrf_secure_mode_rejects_internal_mock_before_fetch(client) -> None:
+    response = client.get(
+        "/fetch", query_string={"mode": "secure", "url": "http://internal-service:8000/"}
+    )
+    assert response.status_code == 200
+    assert b"Secure mode permits HTTPS only" in response.data
+
+
+def test_ssrf_secure_mode_rejects_unallowlisted_hostname(client) -> None:
+    response = client.get(
+        "/fetch", query_string={"mode": "secure", "url": "https://example.com"}
+    )
+    assert response.status_code == 200
+    assert b"not on the secure public allowlist" in response.data
+
+
+def test_ssrf_lab_target_validation_is_strict() -> None:
+    from app.routes.fetch import is_controlled_lab_target
+
+    assert is_controlled_lab_target("http://internal-service:8000/")
+    assert not is_controlled_lab_target("http://internal-service:8080/")
+    assert not is_controlled_lab_target("file:///etc/passwd")
