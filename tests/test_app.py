@@ -170,6 +170,13 @@ def test_jwt_secure_mode_rejects_vulnerable_token(app) -> None:
             validate_token(token, "secure")
 
 
+def test_login_session_cookie_has_security_attributes(client) -> None:
+    response = client.post("/login", data={"username": "alice", "mode": "secure"})
+    set_cookie = response.headers["Set-Cookie"]
+    assert "HttpOnly" in set_cookie
+    assert "SameSite=Lax" in set_cookie
+
+
 def test_vulnerable_upload_trusts_harmless_filename_and_mime(client) -> None:
     import io
     response = client.post("/upload", data={"mode": "vulnerable", "file": (io.BytesIO(b"not a png"), "notes.png", "image/png")}, content_type="multipart/form-data")
