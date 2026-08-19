@@ -5,7 +5,7 @@ def test_application_starts(client) -> None:
     response = client.get("/")
     assert response.status_code == 200
     assert b"WEB SECURITY LAB" in response.data
-    assert b"Phase 7 active" in response.data
+    assert b"All core labs active" in response.data
     assert b'href="/search"' in response.data
 
 
@@ -190,3 +190,33 @@ def test_secure_upload_accepts_utf8_text_with_generated_name(client) -> None:
     assert response.status_code == 200
     assert b"Saved outside static paths as" in response.data
     assert b"notes.txt" in response.data
+
+
+def login_fake_user(client, mode: str = "secure") -> None:
+    response = client.post("/login", data={"username": "alice", "mode": mode})
+    assert response.status_code == 200
+
+
+def test_csrf_vulnerable_mode_changes_fake_email_without_token(client) -> None:
+    login_fake_user(client)
+    response = client.post("/change-email?mode=vulnerable", data={"email": "csrf-vulnerable@example.test"})
+    assert response.status_code == 200
+    assert b"fake local email address was changed" in response.data
+
+
+def test_csrf_secure_mode_rejects_missing_token(client) -> None:
+    login_fake_user(client)
+    response = client.post("/change-email?mode=secure", data={"email": "csrf-secure@example.test"}, headers={"Origin": "http://localhost"})
+    assert response.status_code == 200
+    assert b"CSRF token or request origin is invalid" in response.data
+
+
+def test_csrf_secure_mode_accepts_valid_token_and_origin(client) -> None:
+    login_fake_user(client)
+    form = client.get("/change-email?mode=secure")
+    with client.session_transaction() as session_data:
+        token = session_data["csrf_token"]
+    response = client.post("/change-email?mode=secure", data={"email": "csrf-secure@example.test", "csrf_token": token}, headers={"Origin": "http://localhost"})
+    assert form.status_code == 200
+    assert response.status_code == 200
+    assert b"fake local email address was changed" in response.data

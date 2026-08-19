@@ -78,6 +78,7 @@ def login() -> str:
             token = create_token(user["id"], user["username"], user["role"], mode)
             session["authenticated_user_id"] = user["id"]
             session["authenticated_username"] = user["username"]
+            session["authenticated_mode"] = mode
             message = "A local demonstration token was issued."
     return render_template("login.html", mode=mode, token=token, message=message)
 

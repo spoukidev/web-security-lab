@@ -28,7 +28,7 @@ flowchart LR
 | SSRF | `/fetch` | A10: SSRF | Complete — Phase 5 |
 | JWT/Auth | `/login` | A07: Authentication Failures | Planned — Phase 6 |
 | File Upload | `/upload` | A04: Insecure Design | Complete — Phase 7 |
-| CSRF | `/change-email` | A01: Broken Access Control | Planned — Phase 8 |
+| CSRF | `/change-email` | A01: Broken Access Control | Complete — Phase 8 |
 
 ## Installation
 
@@ -52,7 +52,7 @@ Open [http://127.0.0.1:5000](http://127.0.0.1:5000). Docker publishes only Flask
 
 ## Usage
 
-The dashboard lists the OWASP labs. SQLite initializes with three deterministic fake users: Alice, Bob, and Carol. Completed labs include SQL Injection at `/search`, reflected/stored XSS at `/comments`, IDOR at `/profile/<user_id>`, and controlled SSRF at `/fetch`, each with an intentionally vulnerable local path and a remediation comparison.
+The dashboard lists the OWASP labs. SQLite initializes with three deterministic fake users: Alice, Bob, and Carol. All seven planned labs are complete, each with an intentionally vulnerable local path and a remediation comparison.
 
 ## Burp Suite
 
