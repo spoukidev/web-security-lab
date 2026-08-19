@@ -26,7 +26,7 @@ flowchart LR
 | XSS | `/comments` | A03: Injection | Complete — Phase 3 |
 | IDOR | `/profile/<user_id>` | A01: Broken Access Control | Complete — Phase 4 |
 | SSRF | `/fetch` | A10: SSRF | Complete — Phase 5 |
-| JWT/Auth | `/login` | A07: Authentication Failures | Planned — Phase 6 |
+| JWT/Auth | `/login` | A07: Authentication Failures | Complete — Phase 6 |
 | File Upload | `/upload` | A04: Insecure Design | Complete — Phase 7 |
 | CSRF | `/change-email` | A01: Broken Access Control | Complete — Phase 8 |
 
@@ -77,20 +77,17 @@ This makes the repository useful as both an application-security laboratory and 
 python -m pytest
 ```
 
-Tests cover startup, health, deterministic database initialization, SQL injection, XSS, IDOR, and SSRF restrictions in vulnerable and secure modes.
+Tests cover startup, health, deterministic database initialization, and vulnerable-versus-secure behavior for SQL injection, XSS, IDOR, SSRF, JWT validation, file upload, and CSRF protection.
 
-## Research Extensions
+## Screenshots and Research Extensions
 
-- Complete authentication/JWT failure labs.
-- Add secure file-upload validation and testing.
-- Add CSRF demonstrations and mitigations.
-- Expand write-ups with request/response evidence from the local lab.
-- Add screenshots of the dashboard and completed exercises.
-- Map each lab to relevant OWASP guidance and remediation patterns.
+Add dashboard and lab screenshots to `screenshots/` after exercising the local instance. Future extensions can add more fake-data scenarios, expanded local request/response evidence, and additional OWASP mappings without widening the lab’s scope.
 
 ## Safety Boundaries
 
 The repository does not include real credentials, malware, persistence, credential harvesting, destructive payloads, or external attack automation. All exercises are intended for local or explicitly authorized environments.
+
+See [SECURITY.md](SECURITY.md) and the [final security review](docs/phase-9-security-review.md) for scope boundaries and the final audit.
 
 ## License
 
