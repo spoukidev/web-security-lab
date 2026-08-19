@@ -27,7 +27,7 @@ flowchart LR
 | IDOR | `/profile/<user_id>` | A01: Broken Access Control | Complete — Phase 4 |
 | SSRF | `/fetch` | A10: SSRF | Complete — Phase 5 |
 | JWT/Auth | `/login` | A07: Authentication Failures | Planned — Phase 6 |
-| File Upload | `/upload` | A04: Insecure Design | Planned — Phase 7 |
+| File Upload | `/upload` | A04: Insecure Design | Complete — Phase 7 |
 | CSRF | `/change-email` | A01: Broken Access Control | Planned — Phase 8 |
 
 ## Installation

@@ -5,7 +5,7 @@ def test_application_starts(client) -> None:
     response = client.get("/")
     assert response.status_code == 200
     assert b"WEB SECURITY LAB" in response.data
-    assert b"Phase 6 active" in response.data
+    assert b"Phase 7 active" in response.data
     assert b'href="/search"' in response.data
 
 
@@ -168,3 +168,25 @@ def test_jwt_secure_mode_rejects_vulnerable_token(app) -> None:
         token = create_token(1, "alice", "student", "vulnerable")
         with pytest.raises(ValueError):
             validate_token(token, "secure")
+
+
+def test_vulnerable_upload_trusts_harmless_filename_and_mime(client) -> None:
+    import io
+    response = client.post("/upload", data={"mode": "vulnerable", "file": (io.BytesIO(b"not a png"), "notes.png", "image/png")}, content_type="multipart/form-data")
+    assert response.status_code == 200
+    assert b"Saved outside static paths" in response.data
+
+
+def test_secure_upload_rejects_mismatched_file_signature(client) -> None:
+    import io
+    response = client.post("/upload", data={"mode": "secure", "file": (io.BytesIO(b"not a png"), "notes.png", "image/png")}, content_type="multipart/form-data")
+    assert response.status_code == 200
+    assert b"signature does not match" in response.data
+
+
+def test_secure_upload_accepts_utf8_text_with_generated_name(client) -> None:
+    import io
+    response = client.post("/upload", data={"mode": "secure", "file": (io.BytesIO(b"harmless local test"), "notes.txt", "text/plain")}, content_type="multipart/form-data")
+    assert response.status_code == 200
+    assert b"Saved outside static paths as" in response.data
+    assert b"notes.txt" in response.data
