@@ -2,11 +2,11 @@
 
 A professional, intentionally vulnerable Flask application for learning common web vulnerabilities, detection, impact, and remediation. It is designed strictly for local, authorized security research.
 
-> **Responsible use:** This is an educational laboratory, not a scanning or attack tool. Run it only on your own computer or an explicitly authorized environment. The service is bound to `127.0.0.1` by default, SSRF exercises will be limited to a Docker-only mock service, and all records are deterministic fake data.
+> **Responsible use:** This is an educational laboratory, not a scanning or attack tool. Run it only on your own computer or an explicitly authorized environment. The service is bound to `127.0.0.1` by default, SSRF exercises are limited to a Docker-only mock service, and all records are deterministic fake data.
 
 ## Purpose
 
-Every completed lab will show a vulnerable implementation, controlled reproduction, root cause, secure implementation, and security lesson. Phase 1 provides the foundation; later phases enable one deliberate vulnerability at a time.
+Every completed lab shows a vulnerable implementation, controlled reproduction, root cause, secure implementation, and security lesson. The project is intended to demonstrate both offensive understanding and defensive remediation rather than vulnerability exploitation alone.
 
 ## Architecture
 
@@ -15,7 +15,7 @@ flowchart LR
     Browser["Browser: localhost only"] --> Flask["Flask Web Security Lab"]
     Burp["Burp Suite: localhost testing"] --> Flask
     Flask --> SQLite[("SQLite fake lab data")]
-    Flask -. "Phase 5 controlled SSRF lab" .-> Internal["Docker-only internal mock service"]
+    Flask -. "Controlled SSRF lab" .-> Internal["Docker-only internal mock service"]
 ```
 
 ## Vulnerabilities
@@ -33,7 +33,7 @@ flowchart LR
 ## Installation
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/web-security-lab.git
+git clone https://github.com/spoukidev/web-security-lab.git
 cd web-security-lab
 python -m venv .venv
 # PowerShell
@@ -48,7 +48,7 @@ Or use Docker:
 docker compose up --build
 ```
 
-Open [http://127.0.0.1:5000](http://127.0.0.1:5000). Docker publishes only Flask on loopback; the internal mock service has no host port.
+Open `http://127.0.0.1:5000`. Docker publishes only Flask on loopback; the internal mock service has no host port.
 
 ## Usage
 
@@ -56,11 +56,20 @@ The dashboard lists the OWASP labs. SQLite initializes with three deterministic 
 
 ## Burp Suite
 
-For authorized local testing, configure Burp Proxy on `127.0.0.1:8080`, point your browser at that proxy, and browse to `http://127.0.0.1:5000`. Future write-ups document a local request, response, modified parameter, observed behavior, impact, and remediation for each lab.
+For authorized local testing, configure Burp Proxy on `127.0.0.1:8080`, point your browser at that proxy, and browse to `http://127.0.0.1:5000`. Write-ups should document the local request, response, modified parameter, observed behavior, impact, root cause, and remediation.
 
-## Security Research and Remediation
+## Security Research Methodology
 
-The project follows an OWASP-oriented methodology. Each vulnerability will receive a secure counterpart and a write-up under `writeups/`. It will never include real credentials, malware, persistence, credential harvesting, destructive payloads, or external attack automation.
+For every vulnerability, the lab aims to document:
+
+1. The vulnerable code path.
+2. A controlled local reproduction.
+3. The security impact.
+4. The underlying root cause.
+5. A secure implementation.
+6. Regression tests that distinguish vulnerable and secure behavior.
+
+This makes the repository useful as both an application-security laboratory and a defensive engineering portfolio project.
 
 ## Testing
 
@@ -70,9 +79,18 @@ python -m pytest
 
 Tests cover startup, health, deterministic database initialization, SQL injection, XSS, IDOR, and SSRF restrictions in vulnerable and secure modes.
 
-## Screenshots
+## Research Extensions
 
-Add dashboard and per-lab screenshots to `screenshots/` as the labs are completed.
+- Complete authentication/JWT failure labs.
+- Add secure file-upload validation and testing.
+- Add CSRF demonstrations and mitigations.
+- Expand write-ups with request/response evidence from the local lab.
+- Add screenshots of the dashboard and completed exercises.
+- Map each lab to relevant OWASP guidance and remediation patterns.
+
+## Safety Boundaries
+
+The repository does not include real credentials, malware, persistence, credential harvesting, destructive payloads, or external attack automation. All exercises are intended for local or explicitly authorized environments.
 
 ## License
 
