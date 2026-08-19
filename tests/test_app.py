@@ -5,7 +5,7 @@ def test_application_starts(client) -> None:
     response = client.get("/")
     assert response.status_code == 200
     assert b"WEB SECURITY LAB" in response.data
-    assert b"Phase 5 active" in response.data
+    assert b"Phase 6 active" in response.data
     assert b'href="/search"' in response.data
 
 
@@ -142,3 +142,29 @@ def test_ssrf_lab_target_validation_is_strict() -> None:
     assert is_controlled_lab_target("http://internal-service:8000/")
     assert not is_controlled_lab_target("http://internal-service:8080/")
     assert not is_controlled_lab_target("file:///etc/passwd")
+
+
+def test_jwt_vulnerable_token_is_accepted_in_vulnerable_mode(app) -> None:
+    from app.routes.auth import create_token, validate_token
+    with app.app_context():
+        token = create_token(1, "alice", "student", "vulnerable")
+        claims = validate_token(token, "vulnerable")
+    assert claims["username"] == "alice"
+
+
+def test_jwt_secure_token_requires_secure_validation(app) -> None:
+    from app.routes.auth import create_token, validate_token
+    with app.app_context():
+        token = create_token(1, "alice", "student", "secure")
+        claims = validate_token(token, "secure")
+    assert claims["iss"] == "web-security-lab"
+    assert claims["aud"] == "web-security-lab-browser"
+
+
+def test_jwt_secure_mode_rejects_vulnerable_token(app) -> None:
+    import pytest
+    from app.routes.auth import create_token, validate_token
+    with app.app_context():
+        token = create_token(1, "alice", "student", "vulnerable")
+        with pytest.raises(ValueError):
+            validate_token(token, "secure")
