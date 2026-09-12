@@ -1,6 +1,7 @@
 """Controlled JWT authentication-flaw lab using fake accounts only."""
 from __future__ import annotations
 import base64
+import binascii
 import hashlib
 import hmac
 import json
@@ -19,7 +20,9 @@ def b64url_encode(value: bytes) -> str:
 
 
 def b64url_decode(value: str) -> bytes:
-    return base64.urlsafe_b64decode(value + "=" * (-len(value) % 4))
+    """Decode one JWT segment and reject invalid Base64url characters."""
+    padded = value + "=" * (-len(value) % 4)
+    return base64.b64decode(padded, altchars=b"-_", validate=True)
 
 
 def create_token(user_id: int, username: str, role: str, mode: AuthMode) -> str:
@@ -42,6 +45,8 @@ def validate_token(token: str, mode: AuthMode) -> dict[str, Any]:
         header_part, payload_part, signature_part = token.split(".")
         header = json.loads(b64url_decode(header_part))
         payload = json.loads(b64url_decode(payload_part))
+        if not isinstance(header, dict) or not isinstance(payload, dict):
+            raise ValueError("Token header and payload must be JSON objects.")
         secret = WEAK_LAB_SECRET if mode == "vulnerable" else current_app.config["JWT_SECURE_SECRET"]
         expected = hmac.new(secret.encode(), f"{header_part}.{payload_part}".encode(), hashlib.sha256).digest()
         if not hmac.compare_digest(expected, b64url_decode(signature_part)):
@@ -56,7 +61,7 @@ def validate_token(token: str, mode: AuthMode) -> dict[str, Any]:
         # INTENTIONALLY VULNERABLE mode validates only a signature made with a
         # publicly documented weak secret and does not validate token claims.
         return payload
-    except (ValueError, KeyError, TypeError, json.JSONDecodeError) as error:
+    except (ValueError, KeyError, TypeError, UnicodeDecodeError, binascii.Error, json.JSONDecodeError) as error:
         raise ValueError("Token is not accepted by this mode.") from error
 
 
