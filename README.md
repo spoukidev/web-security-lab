@@ -1,5 +1,7 @@
 # Web Security Lab
 
+[![CI](https://github.com/spoukidev/web-security-lab/actions/workflows/tests.yml/badge.svg)](https://github.com/spoukidev/web-security-lab/actions/workflows/tests.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 A professional, intentionally vulnerable Flask application for learning common web vulnerabilities, detection, impact, and remediation. It is designed strictly for local, authorized security research.
 
 > **Responsible use:** This is an educational laboratory, not a scanning or attack tool. Run it only on your own computer or an explicitly authorized environment. The service is bound to `127.0.0.1` by default, SSRF exercises are limited to a Docker-only mock service, and all records are deterministic fake data.
