@@ -57,7 +57,10 @@ def ensure_secure_target(value: str) -> None:
     if parsed.port not in (None, 443):
         raise ValueError("Secure mode permits the default HTTPS port only.")
 
-    resolved_addresses = socket.getaddrinfo(parsed.hostname, 443, type=socket.SOCK_STREAM)
+    try:
+        resolved_addresses = socket.getaddrinfo(parsed.hostname, 443, type=socket.SOCK_STREAM)
+    except OSError as error:  # socket.gaierror, e.g. NXDOMAIN or no network
+        raise ValueError("Hostname did not resolve.") from error
     if not resolved_addresses:
         raise ValueError("Hostname did not resolve.")
     for address in resolved_addresses:

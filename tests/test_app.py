@@ -136,6 +136,34 @@ def test_ssrf_secure_mode_rejects_unallowlisted_hostname(client) -> None:
     assert b"not on the secure public allowlist" in response.data
 
 
+def test_ssrf_secure_mode_reports_unresolvable_hostname(client, monkeypatch) -> None:
+    import socket
+
+    def fail_lookup(*_args, **_kwargs):
+        raise socket.gaierror(socket.EAI_NONAME, "Name or service not known")
+
+    monkeypatch.setattr(socket, "getaddrinfo", fail_lookup)
+    response = client.get(
+        "/fetch", query_string={"mode": "secure", "url": "https://docs.security-lab.example/"}
+    )
+    assert response.status_code == 200
+    assert b"Hostname did not resolve" in response.data
+
+
+def test_ssrf_secure_mode_blocks_allowlisted_name_resolving_to_private_ip(client, monkeypatch) -> None:
+    import socket
+
+    def private_lookup(*_args, **_kwargs):
+        return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("10.0.0.5", 443))]
+
+    monkeypatch.setattr(socket, "getaddrinfo", private_lookup)
+    response = client.get(
+        "/fetch", query_string={"mode": "secure", "url": "https://docs.security-lab.example/"}
+    )
+    assert response.status_code == 200
+    assert b"blocks private, loopback, and reserved addresses" in response.data
+
+
 def test_ssrf_lab_target_validation_is_strict() -> None:
     from app.routes.fetch import is_controlled_lab_target
 
